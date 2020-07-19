@@ -1,0 +1,18 @@
+{
+  "name": "m3u8-merge",
+  "version": "1.0.0",
+  "description": "m3u8缓存合并",
+  "main": "merge-m3u8.js",
+  "scripts": {
+    "start": "node merge-m3u8.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "m3u8"
+  ],
+  "author": "Sogrey",
+  "license": "MIT",
+  "dependencies": {
+    "line-reader": "^0.4.0"
+  }
+}
