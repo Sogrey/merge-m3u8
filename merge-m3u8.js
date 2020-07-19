@@ -35,7 +35,7 @@ rl.on("close", function () {
 });
 
 // question方法
-rl.question("请输入m3u8缓存目录路径或其父目录路径：", function (path) {
+rl.question("请输入m3u8缓存目录或其父目录完整路径：", function (path) {
     console.log("开始扫描：" + path);
 
     // 扫描目录

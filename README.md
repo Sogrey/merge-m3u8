@@ -26,7 +26,7 @@ E:\workspace\node.js\merge-m3u8>npm start
 > m3u8-merge@1.0.0 start E:\workspace\node.js\merge-m3u8
 > node merge-m3u8.js
 
-请输入m3u8缓存目录路径或其父目录路径：E:\workspace\node.js\merge-m3u8\data\49c2c0ea273
+请输入m3u8缓存目录或其父目录完整路径：E:\workspace\node.js\merge-m3u8\data\49c2c0ea273
 开始扫描：E:\workspace\node.js\merge-m3u8\data\49c2c0ea273
 1 E:\workspace\node.js\merge-m3u8\data\49c2c0ea273\index.m3u8
 一共找到1个符合的目标文件。
