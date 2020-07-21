@@ -1,6 +1,7 @@
 var path = require('path');
 var join = require('path').join;
 var fs = require('fs');
+var http = require('http');
 var exec = require('child_process').exec;
 // 引入readline模块
 var readline = require('readline');
@@ -14,9 +15,11 @@ var rl = readline.createInterface({
 let targetFiles = [];
 
 function findFiles(path) {
+    // path = encodeURI(path);
     let files = fs.readdirSync(path);
     files.forEach(function (item, index) {
         let fPath = join(path, item);
+        // fPath = encodeURI(fPath);
         let stat = fs.statSync(fPath);
         if (stat.isDirectory() === true) {
             findFiles(fPath);
@@ -35,20 +38,83 @@ rl.on("close", function () {
 });
 
 // question方法
-rl.question("请输入m3u8缓存目录或其父目录完整路径：", function (path) {
-    console.log("开始扫描：" + path);
+function selectOption() {
+    rl.question("选项：\n1. 合并m3u8缓存\n2. 下载m3u8\n请选择：", function (index) {
 
-    // 扫描目录
-    findFiles(path);
+        switch (index) {
+            case '1':
+                console.log("你选择：合并m3u8缓存");
+                gotoOption1();
+                break;
+            case '2':
+                console.log("你选择：下载m3u8");
+                gotoOption2();
+                break;
 
-    console.log(`一共找到${targetFiles.length}个符合的目标文件。`);
-    if (targetFiles.length == 0) rl.close();
+            default:
+                console.log("无效选择，请重新选择：");
+                selectOption();
+                break;
+        }
+    });
+}
 
-    mergeInput();
+selectOption();
 
-    // 不加close，则不会结束
-    // rl.close();
-});
+function gotoOption1() {
+    rl.question("请输入m3u8缓存目录或其父目录完整路径：", function (path) {
+
+        if (!path) {
+            console.log('输入无效。');
+            gotoOption1()
+            return;
+        }
+
+        console.log("开始扫描：" + path);
+
+        // 扫描目录
+        findFiles(path);
+
+        console.log(`一共找到${targetFiles.length}个符合的目标文件。`);
+        if (targetFiles.length < 1) rl.close();
+
+        mergeInput();
+
+        // 不加close，则不会结束
+        // rl.close();
+    });
+}
+
+function gotoOption2() {
+
+    rl.question("请输入m3u8地址：", function (uri) {
+
+        if (!uri) {
+            gotoOption2()
+            return;
+        }
+
+        function inputSaveDir() {
+            rl.question("请输入保存目录：", function (path) {
+
+                if (!path) {
+                    inputSaveDir();
+                    return;
+                }
+
+                fs.mkdir(path, () => {
+                    console.log('开始下载...');
+                        // downloadFileAsync(uri,path);
+                });
+
+            });
+        }
+
+        inputSaveDir();
+
+    });
+
+}
 
 function mergeInput() {
     var question = targetFiles.length == 1 ?
@@ -154,33 +220,55 @@ function readFileEnd(fileData) {
     fs.writeFile(`${fileData.dirPath}\\compile.bat`, mergeExec, function (err) {
         if (err) throw err;
         exec(`cd ${fileData.dirPath} & call compile.bat`,
-          function (error, stdout, stderr) {
-            if (error !== null) {
-              throw error;
-            }else{
-                console.log('合并完成',`${fileData.dirPath}/${targeFileName}`);
-            }          
-        });
-      });       
+            function (error, stdout, stderr) {
+                if (error !== null) {
+                    throw error;
+                } else {
+                    console.log('合并完成', `${fileData.dirPath}/${targeFileName}`);
+                }
+            });
+    });
 }
 
-/**
- *  read line by line
- * @param {String} path 
- * @param {*} reader 
- */
-function readerNextLine(path, reader) {
-    console.log(path, reader);
-}
 /**
  * 判断字符串以某个字符串结尾
  */
 function confirmEnding(str, target) {
-    // 请把你的代码写在这里
     var start = str.length - target.length;
     var arr = str.substr(start, target.length);
     if (arr == target) {
         return true;
     }
     return false;
+}
+
+
+function downloadFileAsync(uri, dest) {
+    return new Promise((resolve, reject) => {
+        // 确保dest路径存在
+        const file = fs.createWriteStream(dest);
+
+        http.get(uri, (res) => {
+            if (res.statusCode !== 200) {
+                reject(response.statusCode);
+                return;
+            }
+
+            res.on('end', () => {
+                console.log('download end');
+            });
+
+            // 进度、超时等
+
+            file.on('finish', () => {
+                console.log('finish write file')
+                file.close(resolve);
+            }).on('error', (err) => {
+                fs.unlink(dest);
+                reject(err.message);
+            })
+
+            res.pipe(file);
+        });
+    });
 }

@@ -44,4 +44,9 @@ E:\workspace\node.js\merge-m3u8>npm start
 ## TODO
 
 - [ ] `.m3u8`文件中所列的`.ts`文件可能不存在
+- [ ] 合并后的`.ts`文件转其他常用视频格式
 - [ ] 加密视频的解密
+
+
+
+https://leshi.cdn-zuyida.com/20180807/31301_5b613711/800k/hls/index.m3u8
